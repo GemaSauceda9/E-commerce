@@ -49,16 +49,20 @@ class User extends Authenticatable
 
     /**
      * Verifica si el usuario es administrador
+     * 
+     * @return bool
      */
-    public function isAdmin()
+    public function isAdmin(): bool
     {
         return $this->tipo_usuario === 'admin';
     }
 
     /**
      * Verifica si el usuario es cliente
+     * 
+     * @return bool
      */
-    public function isCliente()
+    public function isCliente(): bool
     {
         return $this->tipo_usuario === 'cliente';
     }

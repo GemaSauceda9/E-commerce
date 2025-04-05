@@ -20,13 +20,22 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// * Rutas para productos
-Route::resource('productos', ProductoController::class);
+// * Rutas para administradores
+Route::middleware(['auth', 'admin'])->group(function () {
+    // * Rutas para productos (administración)
+    Route::resource('productos', ProductoController::class);
+    
+    // * Rutas para categorías
+    Route::resource('categorias', CategoriaController::class);
+    
+    // * Rutas para etiquetas
+    Route::resource('etiquetas', EtiquetaController::class);
+});
 
-// * Rutas para categorías
-Route::resource('categorias', CategoriaController::class);
-
-// * Rutas para etiquetas
-Route::resource('etiquetas', EtiquetaController::class);
+// * Rutas para clientes
+Route::middleware(['auth', 'cliente'])->group(function () {
+    // Rutas específicas para clientes
+    Route::get('/productos/{producto}', [ProductoController::class, 'show'])->name('productos.cliente.show');
+});
 
 require __DIR__.'/auth.php';
