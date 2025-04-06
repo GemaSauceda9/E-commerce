@@ -9,9 +9,13 @@
         
         <div class="flex justify-between items-center">
             <span class="text-[#690375] font-bold">${{ $producto->precio ?? '99.99' }}</span>
-            <button class="bg-[#690375] text-white px-3 py-1 rounded hover:bg-opacity-90 transition-colors">
-                Añadir
-            </button>
+            <form action="{{ route('cart.add', $producto) }}" method="POST">
+                @csrf
+                <input type="hidden" name="cantidad" value="1">
+                <button type="submit" class="bg-[#690375] text-white px-3 py-1 rounded hover:bg-opacity-90 transition-colors">
+                    Añadir
+                </button>
+            </form>
         </div>
     </div>
 </div>
