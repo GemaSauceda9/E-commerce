@@ -18,7 +18,7 @@
             </div>
             
             <div class="text-center mt-10">
-                <a href="{{ route('productos.index') }}" class="bg-[#690375] text-white px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition duration-300 inline-block">
+                <a href="{{ route('productos.all') }}" class="bg-[#690375] text-white px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition duration-300 inline-block">
                     Ver todos los productos
                 </a>
             </div>

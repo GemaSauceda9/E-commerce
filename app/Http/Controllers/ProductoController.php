@@ -8,6 +8,7 @@ use App\Models\Etiqueta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 
 class ProductoController extends Controller
 {
@@ -15,6 +16,31 @@ class ProductoController extends Controller
     {
         $productos = Producto::with(['categoria', 'etiquetas'])->paginate(10);
         return view('productos.index', compact('productos'));
+    }
+
+    public function indexAll(Request $request)
+    {
+        // Agregar log más detallado para depuración
+        Log::info('Accediendo a indexAll de ProductoController', [
+            'request' => $request->all(),
+            'route' => $request->route()->getName()
+        ]);
+        
+        $query = Producto::with(['categoria', 'etiquetas'])
+            ->where('activo', true);
+
+        // Aplicar filtro por categoría si existe
+        if ($request->filled('categoria_id')) {
+            $query->where('categoria_id', $request->categoria_id);
+        }
+
+        $productos = $query->orderBy('created_at', 'DESC')
+            ->paginate(12);
+
+        // Obtener todas las categorías activas para el filtro
+        $categorias = Categoria::where('activo', true)->get();
+
+        return view('productos.index.all', compact('productos', 'categorias'));
     }
 
     public function create()
@@ -106,7 +132,7 @@ class ProductoController extends Controller
             $archivo = $request->file('imagen');
             $extension = $archivo->getClientOriginalExtension();
             $nombreImagen = str_replace(' ', '_', $request->nombre) . '_' . time() . '.' . $extension;
-            
+
             // Guardar nueva imagen
             $archivo->move(public_path('productos'), $nombreImagen);
             $data['imagen'] = 'productos/' . $nombreImagen;

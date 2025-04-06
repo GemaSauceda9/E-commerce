@@ -5,26 +5,34 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\EtiquetaController;
+use App\Http\Controllers\CartController;
 use App\Models\Producto;
 
 Route::get('/', function () {
     $productosRecomendados = Producto::where('destacado', true)
-                                    ->where('activo', true)
-                                    ->orderBy('created_at', 'DESC')
-                                    ->take(8)
-                                    ->get();
-    
+        ->where('activo', true)
+        ->orderBy('created_at', 'DESC')
+        ->take(8)
+        ->get();
+
     return view('home', compact('productosRecomendados'));
 })->name('home');
+
+// Rutas públicas de productos (accesibles sin autenticación)
+Route::get('/productos-all', [ProductoController::class, 'indexAll'])->name('productos.all');
+Route::get('/productos/{producto:slug}', [ProductoController::class, 'detalles'])->name('productos.detalles');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-Route::get('/productos', [ProductoController::class, 'index'])->name('productos.index');
-Route::get('/productos/{producto}', [ProductoController::class, 'detalles'])->name('productos.detalles');
+    // Rutas para el carrito
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add/{producto}', [CartController::class, 'add'])->name('cart.add');
+    Route::put('/cart/update/{cartItem}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
+});
 
 // * Rutas para administradores
 Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function () {
@@ -48,7 +56,7 @@ Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function
         'update' => 'productos.update',
         'destroy' => 'productos.destroy',
     ]);
-    
+
     // * Rutas para categorías
     Route::resource('admin/categorias', CategoriaController::class)->names([
         'index' => 'categorias.index',
@@ -59,7 +67,7 @@ Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function
         'update' => 'categorias.update',
         'destroy' => 'categorias.destroy',
     ]);
-    
+
     // * Rutas para etiquetas
     Route::resource('admin/etiquetas', EtiquetaController::class)->names([
         'index' => 'etiquetas.index',
@@ -78,4 +86,4 @@ Route::middleware(['auth', 'cliente'])->group(function () {
     Route::get('/productos/{producto}', [ProductoController::class, 'show'])->name('productos.cliente.show');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

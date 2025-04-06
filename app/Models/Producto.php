@@ -32,4 +32,9 @@ class Producto extends Model
     {
         return $this->belongsToMany(Etiqueta::class, 'producto_etiqueta');
     }
+    
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
 }
