@@ -11,7 +11,8 @@ class EtiquetaController extends Controller
     public function index()
     {
         $etiquetas = Etiqueta::paginate(10);
-        return view('etiquetas.index', compact('etiquetas'));
+        dd($etiquetas);
+        // return view('etiquetas.index', compact('etiquetas'));
     }
 
     public function create()

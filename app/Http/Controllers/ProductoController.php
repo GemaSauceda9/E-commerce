@@ -7,6 +7,7 @@ use App\Models\Categoria;
 use App\Models\Etiqueta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
 
 class ProductoController extends Controller
 {
@@ -31,10 +32,30 @@ class ProductoController extends Controller
             'stock' => 'required|integer|min:0',
             'sku' => 'required|unique:productos',
             'categoria_id' => 'required|exists:categorias,id',
+            'imagen_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         $data = $request->all();
         $data['slug'] = Str::slug($request->nombre);
+
+        // Si se está subiendo un archivo de imagen
+        if ($request->hasFile('imagen_file') && $request->file('imagen_file')->isValid()) {
+            $archivo = $request->file('imagen_file');
+
+            // Obtener la extensión original
+            $extension = $archivo->getClientOriginalExtension();
+
+            // Generar nombre de la imagen con el campo nombre (sin espacios)
+            $nombreImagen = str_replace(' ', '_', $request->nombre) . '.' . $extension;
+
+            // Guardar en public/productos/
+            $archivo->move(public_path('productos'), $nombreImagen);
+
+            // Guardar la ruta en la BD
+            $data['imagen'] = 'productos/' . $nombreImagen;
+        } else {
+            $data['imagen'] = null;
+        }
 
         $producto = Producto::create($data);
 
@@ -67,10 +88,29 @@ class ProductoController extends Controller
             'stock' => 'required|integer|min:0',
             'sku' => 'required|unique:productos,sku,' . $producto->id,
             'categoria_id' => 'required|exists:categorias,id',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        $data = $request->all();
+        $data = $request->except(['imagen', '_token', '_method', 'etiquetas']);
         $data['slug'] = Str::slug($request->nombre);
+        $data['destacado'] = $request->has('destacado') ? 1 : 0;
+        $data['activo'] = $request->has('activo') ? 1 : 0;
+
+        // Si se está subiendo un archivo de imagen
+        if ($request->hasFile('imagen') && $request->file('imagen')->isValid()) {
+            // Eliminar imagen anterior si existe
+            if ($producto->imagen && File::exists(public_path($producto->imagen))) {
+                File::delete(public_path($producto->imagen));
+            }
+
+            $archivo = $request->file('imagen');
+            $extension = $archivo->getClientOriginalExtension();
+            $nombreImagen = str_replace(' ', '_', $request->nombre) . '_' . time() . '.' . $extension;
+            
+            // Guardar nueva imagen
+            $archivo->move(public_path('productos'), $nombreImagen);
+            $data['imagen'] = 'productos/' . $nombreImagen;
+        }
 
         $producto->update($data);
 
@@ -90,5 +130,16 @@ class ProductoController extends Controller
 
         return redirect()->route('productos.index')
             ->with('success', 'Producto eliminado exitosamente.');
+    }
+
+    public function catalogo()
+    {
+        $productos = Producto::where('activo', true)->paginate(12);
+        return view('productos.catalogo', compact('productos'));
+    }
+
+    public function detalles(Producto $producto)
+    {
+        return view('productos.detalles', compact('producto'));
     }
 }

@@ -26,7 +26,7 @@ class ProductoSeeder extends Seeder
                 'precio' => rand(10, 1000) + (rand(0, 99) / 100),
                 'stock' => rand(0, 100),
                 'sku' => 'PROD-' . str_pad($i, 4, '0', STR_PAD_LEFT),
-                'imagen' => null,
+                'imagen' => 'productos/producto_' . $i . '.webp', // Nombre de imagen ficticio
                 'destacado' => rand(0, 1),
                 'activo' => true,
                 'categoria_id' => $categorias->random()->id,
