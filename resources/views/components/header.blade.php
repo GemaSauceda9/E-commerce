@@ -6,10 +6,10 @@
             </div>
             
             <nav class="hidden md:flex space-x-8">
-                <a href="{{ route('home') }}" class="hover:text-gray-200 transition">Inicio</a>
-                <a href="{{ route('productos.index') }}" class="hover:text-gray-200 transition">Productos</a>
-                <a href="{{ route('categorias.index') }}" class="hover:text-gray-200 transition">Categorías</a>
-                <a href="#" class="hover:text-gray-200 transition">Contacto</a>
+                <a href=""" class="hover:text-gray-200 transition">Inicio</a>
+                <a href="" class="hover:text-gray-200 transition">Productos</a>
+                <a href="" class="hover:text-gray-200 transition">Categorías</a>
+                <a href="" class="hover:text-gray-2pindex00 transition">Contacto</a>
             </nav>
             
             <div class="flex items-center space-x-4">
@@ -20,9 +20,12 @@
                 </a>
                 
                 @auth
-                    <a href="{{ route('dashboard') }}" class="hover:text-gray-200 transition">Mi cuenta</a>
+                @if(auth()->user()->isAdmin())
+                <a href="{{ route('admin.dashboard') }}" class="hover:text-gray-200 transition">Panel Admin</a>
+                @endif
+                <a href="{{ route('dashboard') }}" class="hover:text-gray-200 transition">Mi cuenta</a>
                 @else
-                    <a href="{{ route('login') }}" class="hover:text-gray-200 transition">Iniciar sesión</a>
+                <a href="{{ route('login') }}" class="hover:text-gray-200 transition">Iniciar sesión</a>
                 @endauth
             </div>
         </div>
